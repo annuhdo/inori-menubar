@@ -30,12 +30,15 @@ exports.Mutation = new GraphQLObjectType({
           fruits: ["apple", "orange", "pear"],
           infos: { name: "nedb" }
         };
+        try {
+          await db.insert(doc);
 
-        await db.insert(doc);
-
-        const foundDoc = await db.findOne({ n: 5 });
-        console.log(foundDoc);
-        return foundDoc.hello;
+          const foundDoc = await db.findOne({ n: 5 });
+          console.log(foundDoc);
+          return foundDoc.hello;
+        } catch (err) {
+          console.error(err);
+        }
       }
     }
   })

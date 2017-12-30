@@ -1,7 +1,11 @@
 const menubar = require("menubar");
 const path = require("path");
 const url = require("url");
-const server = require("./server/server");
+const {
+  default: installExtension,
+  REACT_DEVELOPER_TOOLS,
+  REDUX_DEVTOOLS
+} = require("electron-devtools-installer");
 
 // Keep a reference for dev mode
 let dev = false;
@@ -31,12 +35,20 @@ if (dev && process.argv.indexOf("--noDevServer") === -1) {
 
 const mb = menubar({
   index: indexPath,
-  height: 550
+  height: 550,
+  alwaysOnTop: true
 });
 
 mb.on("ready", function ready() {
   console.log("app is ready");
-  // your app code here
+
+  installExtension(REACT_DEVELOPER_TOOLS)
+    .then(name => console.log(`Added Extension:  ${name}`))
+    .catch(err => console.log("An error occurred: ", err));
+
+  installExtension(REDUX_DEVTOOLS)
+    .then(name => console.log(`Added Extension:  ${name}`))
+    .catch(err => console.log("An error occurred: ", err));
 });
 
 mb.on("after-create-window", () => {

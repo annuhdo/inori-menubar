@@ -5,9 +5,6 @@ const DataLoader = require("dataloader");
 const cors = require("cors");
 const { fetchSearchQuery, fetchSeries } = require("./connection");
 const app = express();
-const LinvoDB = require("linvodb3");
-LinvoDB.dbPath; // default path where data files are stored for each model
-LinvoDB.defaults; // default options for every model
 
 app.use(
   "/graphql",

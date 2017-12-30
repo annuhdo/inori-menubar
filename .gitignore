@@ -5,6 +5,7 @@ dist/
 builds/
 
 # Db
+db/
 *.db
 
 # Logs

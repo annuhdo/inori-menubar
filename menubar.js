@@ -1,6 +1,7 @@
 const menubar = require("menubar");
 const path = require("path");
 const url = require("url");
+const server = require("./server/server");
 
 // Keep a reference for dev mode
 let dev = false;

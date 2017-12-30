@@ -1,25 +1,21 @@
 {
   "name": "inori-menubar",
   "version": "0.1.0",
-  "description":
-    "Inori menubar app that helps keep track of anime being watched.",
+  "description": "Inori menubar app that helps keep track of anime being watched.",
   "author": "Anna Do <annahma@icloud.com>",
   "repository": {
     "type": "git",
     "url": "https://github.com/annuhdo/inori.git"
   },
   "license": "MIT",
-  "main": "menubar.js",
+  "main": "start.js",
   "scripts": {
     "server": "nodemon ./server/server.js",
-    "prod":
-      "webpack --config webpack.build.config.js && electron --noDevServer .",
-    "start":
-      "webpack-dev-server --hot --host 0.0.0.0 --config=./webpack.dev.config.js",
+    "prod": "webpack --config webpack.build.config.js && electron --noDevServer .",
+    "start": "webpack-dev-server --hot --host 0.0.0.0 --config=./webpack.dev.config.js",
     "build": "webpack --config webpack.build.config.js",
     "package": "webpack --config webpack.build.config.js",
-    "postpackage":
-      "electron-packager ./ --platform=darwin --arch=x64 --overwrite --out=./builds"
+    "postpackage": "electron-packager ./ --platform=darwin --arch=x64 --overwrite --out=./builds"
   },
   "devDependencies": {
     "axios": "^0.17.1",
@@ -38,9 +34,8 @@
     "file-loader": "^1.1.5",
     "graphql": "^0.12.3",
     "html-webpack-plugin": "^2.28.0",
-    "leveldown": "^1.1.0",
-    "linvodb3": "^3.25.1",
     "menubar": "^5.2.3",
+    "nedb-promise": "^2.0.1",
     "nodemon": "^1.14.6",
     "react": "^16.0.0",
     "react-dom": "^16.0.0",

@@ -7,7 +7,7 @@ const {
   GraphQLNonNull
 } = require("graphql");
 const { SeriesType } = require("./typedefs");
-const Doc = require("./models/Doc");
+const db = require("./models/Doc");
 
 exports.Mutation = new GraphQLObjectType({
   name: "Mutation",
@@ -20,11 +20,22 @@ exports.Mutation = new GraphQLObjectType({
       //   }
       // },
       resolve: async (root, args, context) => {
-        // Construct a single document and then save it
-        var doc = new Doc({ a: 5, now: new Date(), test: "this is a string" });
-        doc.b = 13; // you can modify the doc
-        await doc.save();
-        return doc._id;
+        var doc = {
+          hello: "world",
+          n: 5,
+          today: new Date(),
+          nedbIsAwesome: true,
+          notthere: null,
+          notToBeSaved: undefined, // Will not be saved
+          fruits: ["apple", "orange", "pear"],
+          infos: { name: "nedb" }
+        };
+
+        await db.insert(doc);
+
+        const foundDoc = await db.findOne({ n: 5 });
+        console.log(foundDoc);
+        return foundDoc.hello;
       }
     }
   })

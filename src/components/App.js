@@ -1,15 +1,19 @@
 import React, { Component } from "react";
 import styled, { injectGlobal } from "styled-components";
+import Card from "./Card";
 
 const darkBg = "#090F2C";
 const lighterDark = "#0B1028";
 
 injectGlobal`
-@import url("https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700");
+@import url('https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,300i,400,400i,600,600i,700,700i');
 body {
   font-family: 'Source Sans Pro', sans-serif;
   background: ${darkBg};
   overflow-x: hidden;
+  color: #eee;
+  font-weight: 300;
+  font-size: 14px;
 }
 
 * {
@@ -21,7 +25,8 @@ body {
 const Container = styled("div")`
   width: 100%;
   display: grid;
-  grid-template-rows: repeat(3, 1fr);
+  grid-template-rows: 45px 35px 1fr;
+  grid-gap: 5px 10px;
 `;
 
 const Topbar = styled("div")`
@@ -61,7 +66,9 @@ class App extends Component {
           <button>Completed</button>
           <button>Dropped</button>
         </Filterbar>
-        <div>Howdy</div>
+        <Card />
+        <Card />
+        <Card />
       </Container>
     );
   }

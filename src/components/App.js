@@ -1,6 +1,9 @@
 import React, { Component } from "react";
 import styled, { injectGlobal } from "styled-components";
 import Card from "./Card";
+import SearchBar from "./SearchBar";
+import FontAwesomeIcon from "@fortawesome/react-fontawesome";
+import faSearch from "@fortawesome/fontawesome-free-solid/faSearch";
 
 const darkBg = "#090F2C";
 const lighterDark = "#0B1028";
@@ -26,15 +29,15 @@ const Container = styled("div")`
   width: 100%;
   display: grid;
   grid-template-rows: 45px 35px 1fr;
-  grid-gap: 5px 10px;
+  grid-gap: 0px 10px;
 `;
 
 const Topbar = styled("div")`
   height: 45px;
   background: ${lighterDark};
   display: grid;
-  grid-template-columns: 1fr 30px 30px;
-  grid-gap: 20px;
+  grid-template-columns: 1fr 30px;
+  grid-gap: 0 5px;
 `;
 
 const Filterbar = styled("div")`
@@ -57,9 +60,8 @@ class App extends Component {
     return (
       <Container>
         <Topbar>
-          <button>One</button>
+          <SearchBar />
           <button>Two</button>
-          <button>Three</button>
         </Topbar>
         <Filterbar>
           <button>Active</button>

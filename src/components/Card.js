@@ -1,6 +1,8 @@
 import React, { Component } from "react";
 import styled, { injectGlobal } from "styled-components";
-import LeftIcon from "../assets/icons/left-arrow.svg";
+import FontAwesomeIcon from "@fortawesome/react-fontawesome";
+import faMinus from "@fortawesome/fontawesome-free-solid/faMinus";
+import faPlus from "@fortawesome/fontawesome-free-solid/faPlus";
 
 const Container = styled("div")`
   padding: 10px 20px 10px 20px;
@@ -58,17 +60,21 @@ const Episodes = styled("section")`
 
 const Controls = styled("span")`
   font-size: 14px;
-  margin-left: 10px;
+  margin-left: 5px;
   position: relative;
 `;
 
 const Inc = styled("div")`
   display: inline-block;
-  position: absolute;
-  top: 0;
-  bottom: 0;
   margin: auto;
   cursor: pointer;
+  font-size: 15px;
+  color: #7857f9;
+  padding: 0 10px;
+
+  &:hover {
+    color: #3f2f7c;
+  }
 `;
 
 const Dec = styled(Inc)`
@@ -82,7 +88,7 @@ const Episode = styled("div")`
   font-size: 16px;
   padding: 5px 10px 7px;
   border-radius: 50px;
-  margin: 0 20px;
+  margin: 0;
 `;
 
 const EditBtn = styled("button")`
@@ -115,7 +121,7 @@ const ActionBtns = styled("div")`
   button {
     border: 0;
     outline: 0;
-    padding: 10px 15px;
+    padding: 8px 15px;
     border-radius: 25px;
     margin-right: 10px;
     font-size: 13px;
@@ -173,41 +179,11 @@ class Card extends Component {
               Watching{" "}
               <Controls>
                 <Inc>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="14"
-                    height="20"
-                    viewBox="0 0 14 26"
-                  >
-                    <polyline
-                      fill="none"
-                      stroke="#7857F9"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="4"
-                      points="-6 19 4.395 9 16 19"
-                      transform="rotate(-90 5.5 12.5)"
-                    />
-                  </svg>
+                  <FontAwesomeIcon icon={faMinus} />
                 </Inc>
                 <Episode>3/24</Episode>{" "}
                 <Dec>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="14"
-                    height="20"
-                    viewBox="0 0 14 26"
-                  >
-                    <polyline
-                      fill="none"
-                      stroke="#7857F9"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="4"
-                      points="92 19 102.395 9 114 19"
-                      transform="rotate(90 55.5 -34.5)"
-                    />
-                  </svg>
+                  <FontAwesomeIcon icon={faPlus} />
                 </Dec>
               </Controls>
             </Episodes>

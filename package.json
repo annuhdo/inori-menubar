@@ -18,6 +18,9 @@
     "postpackage": "electron-packager ./ --platform=darwin --arch=x64 --overwrite --out=./builds"
   },
   "devDependencies": {
+    "@fortawesome/fontawesome": "^1.1.0",
+    "@fortawesome/fontawesome-free-solid": "^5.0.2",
+    "@fortawesome/react-fontawesome": "^0.0.17",
     "axios": "^0.17.1",
     "babel-core": "^6.24.1",
     "babel-loader": "^7.1.2",

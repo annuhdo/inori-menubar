@@ -154,7 +154,7 @@ const ActionBtns = styled("div")`
   }
 `;
 
-class Card extends Component {
+class InfoCard extends Component {
   constructor() {
     super();
   }
@@ -214,4 +214,4 @@ class Card extends Component {
   }
 }
 
-export default Card;
+export default InfoCard;

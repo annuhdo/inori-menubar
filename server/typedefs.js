@@ -8,7 +8,58 @@ const {
 } = require("graphql");
 const { parseImage, parseURL } = require("./utils");
 
-const SeriesType = new GraphQLObjectType({
+exports.SeriesInputType = {
+  id: {
+    type: new GraphQLNonNull(GraphQLString)
+  },
+  type: {
+    type: GraphQLString
+  },
+  title: {
+    type: GraphQLString
+  },
+  jp_title: {
+    type: GraphQLString
+  },
+  url: {
+    type: GraphQLString
+  },
+  image_url: {
+    type: GraphQLString
+  },
+  synopsis: {
+    type: GraphQLString
+  },
+  startDate: {
+    type: GraphQLString
+  },
+  endDate: {
+    type: GraphQLString
+  },
+  ageRating: {
+    type: GraphQLString
+  },
+  subType: {
+    type: GraphQLString
+  },
+  status: {
+    type: GraphQLString
+  },
+  episodes: {
+    type: GraphQLInt
+  },
+  youtubeVideoId: {
+    type: GraphQLString
+  },
+  userStatus: {
+    type: new GraphQLNonNull(GraphQLString)
+  },
+  watchedEps: {
+    type: GraphQLInt
+  }
+};
+
+exports.SeriesOutputType = new GraphQLObjectType({
   name: "Series",
   fields: () => ({
     id: {
@@ -26,56 +77,70 @@ const SeriesType = new GraphQLObjectType({
     title: {
       type: GraphQLString,
       resolve: root => {
-        return root.attributes.canonicalTitle;
+        return (
+          (root.attributes && root.attributes.canonicalTitle) || root.title
+        );
       }
     },
     jp_title: {
       type: GraphQLString,
-      resolve: root => root.attributes.titles.ja_jp
+      resolve: root =>
+        (root.attributes && root.attributes.titles.ja_jp) || root.jp_title
     },
     url: {
       type: GraphQLString,
-      resolve: root => parseURL(root.type, root.attributes.slug)
+      resolve: root =>
+        (root.attributes && parseURL(root.type, root.attributes.slug)) ||
+        root.url
     },
     image_url: {
       type: GraphQLString,
-      resolve: root => root.attributes.posterImage.medium
+      resolve: root =>
+        (root.attributes &&
+          root.attributes.posterImage &&
+          root.attributes.posterImage.medium) ||
+        root.image_url
     },
     synopsis: {
       type: GraphQLString,
-      resolve: root => root.attributes.synopsis
+      resolve: root =>
+        (root.attributes && root.attributes.synopsis) || root.synopsis
     },
     startDate: {
       type: GraphQLString,
-      resolve: root => root.attributes.startDate
+      resolve: root =>
+        (root.attributes && root.attributes.startDate) || root.startDate
     },
     endDate: {
       type: GraphQLString,
-      resolve: root => root.attributes.endDate
+      resolve: root =>
+        (root.attributes && root.attributes.endDate) || root.endDate
     },
     ageRating: {
       type: GraphQLString,
-      resolve: root => root.attributes.ageRatingGuide
+      resolve: root =>
+        (root.attributes && root.attributes.ageRatingGuide) || root.ageRating
     },
     subtype: {
       type: GraphQLString,
-      resolve: root => root.attributes.subtype
+      resolve: root =>
+        (root.attributes && root.attributes.subtype) || root.subtype
     },
     status: {
       type: GraphQLString,
-      resolve: root => root.attributes.status
+      resolve: root =>
+        (root.attributes && root.attributes.status) || root.status
     },
     episodes: {
       type: GraphQLInt,
-      resolve: root => root.attributes.episodeCount
+      resolve: root =>
+        (root.attributes && root.attributes.episodeCount) || root.episodes
     },
     youtubeVideoId: {
       type: GraphQLString,
-      resolve: root => root.attributes.youtubeVideoId
+      resolve: root =>
+        (root.attributes && root.attributes.youtubeVideoId) ||
+        root.youtubeVideoId
     }
   })
 });
-
-module.exports = {
-  SeriesType
-};

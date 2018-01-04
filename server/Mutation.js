@@ -6,40 +6,54 @@ const {
   GraphQLList,
   GraphQLNonNull
 } = require("graphql");
-const { SeriesType } = require("./typedefs");
-const db = require("./models/Doc");
+const { SeriesOutputType } = require("./typedefs");
+const { SeriesInputType } = require("./typedefs");
+const db = require("./models/Series");
 
 exports.Mutation = new GraphQLObjectType({
   name: "Mutation",
   fields: () => ({
     addSeries: {
       type: GraphQLString,
-      // args: {
-      //   name: {
-      //     type: GraphQLString
-      //   }
-      // },
-      resolve: async (root, args, context) => {
-        var doc = {
-          hello: "world",
-          n: 5,
-          today: new Date(),
-          nedbIsAwesome: true,
-          notthere: null,
-          notToBeSaved: undefined, // Will not be saved
-          fruits: ["apple", "orange", "pear"],
-          infos: { name: "nedb" }
-        };
+      args: SeriesInputType,
+      resolve: async (root, series, context) => {
         try {
-          await db.insert(doc);
+          await db.insert(series);
 
-          const foundDoc = await db.findOne({ n: 5 });
-          console.log(foundDoc);
-          return foundDoc.hello;
+          // const foundDoc = await db.findOne({ id: "886" });
+          // console.log(foundDoc);
+          return foundDoc.title;
+        } catch (err) {
+          console.error(err);
+        }
+      }
+    },
+    changeStatus: {
+      type: GraphQLString,
+      args: {
+        _id: {
+          type: new GraphQLNonNull(GraphQLString)
+        },
+        newStatus: {
+          type: new GraphQLNonNull(GraphQLString)
+        }
+      },
+      resolve: async (root, { _id, newStatus }) => {
+        if (
+          newStatus != "watching" ||
+          newStatus != "completed" ||
+          newStatus != dropped
+        ) {
+          throw new Error();
+        }
+        try {
+          await db.update({ _id }, { $set: { userStatus: newStatus } });
         } catch (err) {
           console.error(err);
         }
       }
     }
+
+    // TODO: test this
   })
 });

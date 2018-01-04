@@ -55,6 +55,8 @@ class List extends Component {
       return <Loading>Loading...</Loading>;
     } else if (error) {
       return <p>Error!</p>;
+    } else if (!search) {
+      return <p>Not found :(</p>;
     } else {
       return (
         <Container showFilters={this.props.showFilters ? "true" : "false"}>

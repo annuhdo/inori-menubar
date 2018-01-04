@@ -45,10 +45,10 @@ module.exports = {
   },
   target: "electron-renderer",
   plugins: [
-    new HtmlWebpackPlugin({
-      title: "Inori Menubar",
-      template: "src/templates/index.html"
-    }),
+    // new HtmlWebpackPlugin({
+    //   title: "Inori Menubar",
+    //   template: "src/templates/index.html"
+    // }),
     new webpack.DefinePlugin({
       "process.env.NODE_ENV": JSON.stringify("development")
     })

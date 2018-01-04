@@ -5,6 +5,9 @@ const DataLoader = require("dataloader");
 const cors = require("cors");
 const { fetchSearchQuery, fetchSeries } = require("./connection");
 const app = express();
+const offline = require("express-offline");
+
+app.use(offline());
 
 app.use(
   "/graphql",

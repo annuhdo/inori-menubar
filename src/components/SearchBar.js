@@ -83,6 +83,8 @@ class SearchBar extends Component {
     this.props.setSearchVisibility(true);
     this.props.setFiltersVisibility(false);
     this.searchInput.blur();
+
+    this.props.fetchSearch(this.state.searchKeyword);
   };
 
   render() {

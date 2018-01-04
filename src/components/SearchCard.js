@@ -6,11 +6,7 @@ import faPlus from "@fortawesome/fontawesome-free-solid/faPlus";
 
 const Container = styled("div")`
   padding: 10px 20px 10px 20px;
-  padding-right: ${props => (props.showEdit === "true" ? "0" : "20px")};
-
-  &:hover {
-    padding-right: 0;
-  }
+  padding-right: 20px;
 `;
 
 const SeriesInfo = styled("section")`
@@ -31,6 +27,7 @@ const Info = styled("div")`
   padding-left: 10px;
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
 `;
 
 const Title = styled("h1")`
@@ -85,15 +82,16 @@ class SearchCard extends Component {
   };
 
   render() {
+    const { info } = this.props;
     return (
       <Container showEdit={this.state.openEditBtns ? "true" : "false"}>
         <SeriesInfo>
-          <Thumbnail img="https://media.kitsu.io/anime/poster_images/11614/medium.jpg?1496075336" />
+          <Thumbnail img={info.image_url} />
           <Info>
-            <Title>Kimi no na wa.</Title>
+            <Title>{info.title}</Title>
             <Type>
               TV
-              <Episode>24 Episodes</Episode>
+              <Episode>{info.episodes} Episodes</Episode>
             </Type>
             <ActionBtn status={this.props.status}>
               {this.props.status === "watching"

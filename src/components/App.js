@@ -109,6 +109,10 @@ class App extends Component {
     });
   };
 
+  fetchSearch = keyword => {
+    this.state.searchQuery = keyword;
+  };
+
   render() {
     return (
       <Container>
@@ -116,6 +120,8 @@ class App extends Component {
           <SearchBar
             setSearchVisibility={this.setSearchVisibility}
             setFiltersVisibility={this.setFiltersVisibility}
+            client={this.props.client}
+            fetchSearch={this.fetchSearch}
           />
           <FilterIcon
             onClick={() =>
@@ -134,6 +140,7 @@ class App extends Component {
         <List
           showFilters={this.state.showFilters}
           searching={this.state.searching}
+          keyword={this.state.searchQuery}
         />
       </Container>
     );

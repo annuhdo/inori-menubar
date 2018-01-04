@@ -8,7 +8,7 @@ const app = express();
 
 app.use(
   "/graphql",
-  cors({ origin: "http://localhost:1234" }),
+  cors({ origin: "http://localhost:8080" }),
   graphqlHTTP(req => {
     // Caching for every request
 

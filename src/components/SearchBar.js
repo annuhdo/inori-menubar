@@ -67,6 +67,7 @@ class SearchBar extends Component {
       searchKeyword: ""
     });
     this.props.setSearchVisibility(false);
+    this.props.setFiltersVisibility(true);
   };
 
   handleChange = e => {

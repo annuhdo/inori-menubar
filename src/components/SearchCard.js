@@ -27,13 +27,13 @@ const SearchType = styled("div")`
 
 const ActionBtn = styled(Button)`
   margin-top: 10px;
-  background: ${props => (props.watching === "true" ? "#242552" : "#2024a4")};
+  background: ${props => (props.inList === "true" ? "#242552" : "#2024a4")};
   color: #fff;
   font-size: 13px;
-  cursor: ${props => (props.watching === "true" ? "initial" : "pointer")};
+  cursor: ${props => (props.inList === "true" ? "initial" : "pointer")};
 
   &:hover {
-    background: ${props => (props.watching === "true" ? "$242552" : "#272cda")};
+    background: ${props => (props.inList === "true" ? "$242552" : "#272cda")};
   }
 `;
 
@@ -48,7 +48,9 @@ class SearchCard extends Component {
 
   state = {
     openEditBtns: false,
-    watching: false
+    watching: false,
+    completed: false,
+    dropped: false
   };
 
   componentDidMount() {
@@ -56,6 +58,8 @@ class SearchCard extends Component {
     const { store } = this.props.client;
     const listCache = store.cache.data.data.ROOT_QUERY;
     const watchingList = listCache['seriesList({"userStatus":1})'];
+    const completedList = listCache['seriesList({"userStatus":2})'];
+    const droppedList = listCache['seriesList({"userStatus":3})'];
 
     watchingList.map(series => {
       const id = series.id.split(":")[1];
@@ -66,6 +70,30 @@ class SearchCard extends Component {
         });
       }
     });
+
+    if (!this.state.watching) {
+      completedList.map(series => {
+        const id = series.id.split(":")[1];
+
+        if (info.id === id) {
+          this.setState({
+            completed: true
+          });
+        }
+      });
+    }
+
+    if (!this.state.dropped) {
+      droppedList.map(series => {
+        const id = series.id.split(":")[1];
+
+        if (info.id === id) {
+          this.setState({
+            dropped: true
+          });
+        }
+      });
+    }
   }
 
   onClick = async (action, input) => {
@@ -76,7 +104,7 @@ class SearchCard extends Component {
             variables: input
           });
           this.setState({
-            watching: !this.state.watching
+            watching: true
           });
           break;
         default:
@@ -99,12 +127,22 @@ class SearchCard extends Component {
               <Episode>{info.episodes} Episodes</Episode>
             </Type>
             <ActionBtn
-              watching={this.state.watching ? "true" : "false"}
+              inList={
+                this.state.watching ||
+                this.state.completed ||
+                this.state.dropped
+                  ? "true"
+                  : "false"
+              }
               onClick={() =>
                 this.onClick("add", { ...info, userStatus: 1, watchedEps: 1 })
               }
             >
-              {this.state.watching ? "Watching" : "Add to Watching"}
+              {this.state.watching
+                ? "Watching"
+                : this.state.completed
+                  ? "Completed"
+                  : this.state.dropped ? "Dropped" : "Add to Watching"}
             </ActionBtn>
           </Info>
         </SeriesInfo>

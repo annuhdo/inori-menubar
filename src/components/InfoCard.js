@@ -67,7 +67,7 @@ const Dec = styled(Inc)`
 `;
 
 const Episode = styled("div")`
-  display: inline;
+  display: inline-block;
   background: #454af3;
   color: #fff;
   font-size: 16px;

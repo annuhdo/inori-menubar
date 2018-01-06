@@ -36,20 +36,21 @@ if (dev && process.argv.indexOf("--noDevServer") === -1) {
 const mb = menubar({
   index: indexPath,
   height: 550
+  // alwaysOnTop: true
 });
 
 mb.on("ready", function ready() {
   console.log("app is ready");
 
-  installExtension(REACT_DEVELOPER_TOOLS)
-    .then(name => console.log(`Added Extension:  ${name}`))
-    .catch(err => console.log("An error occurred: ", err));
+  // installExtension(REACT_DEVELOPER_TOOLS)
+  //   .then(name => console.log(`Added Extension:  ${name}`))
+  //   .catch(err => console.log("An error occurred: ", err));
 
-  installExtension(REDUX_DEVTOOLS)
-    .then(name => console.log(`Added Extension:  ${name}`))
-    .catch(err => console.log("An error occurred: ", err));
+  // installExtension(REDUX_DEVTOOLS)
+  //   .then(name => console.log(`Added Extension:  ${name}`))
+  //   .catch(err => console.log("An error occurred: ", err));
 });
 
 mb.on("after-create-window", () => {
-  mb.window.openDevTools();
+  // mb.window.openDevTools();
 });

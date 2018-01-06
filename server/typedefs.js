@@ -10,7 +10,7 @@ const { parseImage, parseURL } = require("./utils");
 
 exports.SeriesInputType = {
   id: {
-    type: new GraphQLNonNull(GraphQLString)
+    type: GraphQLString
   },
   type: {
     type: GraphQLString

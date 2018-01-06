@@ -23,7 +23,13 @@ const client = new ApolloClient({
     uri: "http://localhost:7777/graphql",
     credentials: "same-origin"
   }),
-  cache
+  cache,
+  defaultOptions: {
+    query: {
+      fetchPolicy: "cache-and-network",
+      errorPolicy: "all"
+    }
+  }
 });
 
 // const Index = () => {

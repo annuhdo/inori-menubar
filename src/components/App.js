@@ -29,9 +29,6 @@ body {
 
 const Container = styled("div")`
   width: 100%;
-  /* display: grid;
-  grid-template-rows: 45px 35px 1fr;
-  grid-gap: 0px 10px; */
   display: flex;
   flex-direction: column;
 `;
@@ -97,7 +94,7 @@ class App extends Component {
     this.state = {
       searchQuery: "",
       searching: false,
-      showFilters: false,
+      showFilters: true,
       currentStatus: 1
     };
   }

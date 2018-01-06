@@ -45,6 +45,7 @@ exports.Mutation = new GraphQLObjectType({
       },
       resolve: async (root, { id }) => {
         try {
+          await db.update({ id }, { $set: { userStatus: null } }, {});
           const removedDoc = await db.remove({ id }, {});
           return removedDoc;
         } catch (err) {
@@ -63,10 +64,11 @@ exports.Mutation = new GraphQLObjectType({
         }
 
         if (
-          args.watchedEps < alreadyExist.episodes ||
-          args.watchedEps > alreadyExist.episodes
+          alreadyExist.episodes &&
+          (args.watchedEps < alreadyExist.episodes ||
+            args.watchedEps > alreadyExist.episodes)
         ) {
-          args.watchedEps = Math.max(args.watchedEps, 0);
+          args.watchedEps = Math.max(args.watchedEps, 1);
           args.watchedEps = Math.min(args.watchedEps, alreadyExist.episodes);
         }
 

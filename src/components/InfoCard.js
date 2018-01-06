@@ -5,8 +5,13 @@ import faMinus from "@fortawesome/fontawesome-free-solid/faMinus";
 import faPlus from "@fortawesome/fontawesome-free-solid/faPlus";
 import { compose, graphql } from "react-apollo";
 import gql from "graphql-tag";
+import { ListQuery } from "./List";
+import { SeriesInfo, Thumbnail, Title, Type, Button } from "../styles";
 
 const shortenString = (s, limit) => {
+  if (s.length <= limit) {
+    return s;
+  }
   return `${s.substring(0, limit - 3)}...`;
 };
 
@@ -19,38 +24,11 @@ const Container = styled("div")`
   }
 `;
 
-const SeriesInfo = styled("section")`
-  display: flex;
-`;
-
-const Thumbnail = styled("div")`
-  width: 110px;
-  border-radius: 5px;
-  overflow: hidden;
-  background: url(${props => props.img});
-  background-position: center center;
-  background-size: cover;
-  min-height: 156px;
-`;
-
 const Info = styled("div")`
   flex: 1;
   padding-left: 10px;
   display: flex;
   flex-direction: column;
-`;
-
-const Title = styled("h1")`
-  font-weight: 400;
-  font-size: 16px;
-  color: #eee;
-`;
-
-const Type = styled("p")`
-  font-size: 14px;
-  font-weight: 400;
-  color: #9094ff;
-  margin-top: 2px;
 `;
 
 const Synopsis = styled("section")`
@@ -62,7 +40,6 @@ const Episodes = styled("section")`
   font-weight: 400;
   display: flex;
   align-items: center;
-  display: ${props => (props.userStatus === 1 ? "block" : "none")};
 `;
 
 const Controls = styled("span")`
@@ -78,6 +55,7 @@ const Inc = styled("div")`
   font-size: 15px;
   color: #7857f9;
   padding: 0 10px;
+  display: ${props => (props.userStatus === 1 ? "inline-block" : "none")};
 
   &:hover {
     color: #3f2f7c;
@@ -124,34 +102,19 @@ const Buttons = styled("div")`
   display: flex;
   margin: 20px 10px 5px 0;
   display: ${props => props.show};
-
-  button {
-    border: 0;
-    outline: 0;
-    padding: 8px 15px;
-    border-radius: 25px;
-    margin-right: 10px;
-    font-size: 13px;
-    font-family: "Source Sans Pro", sans-serif;
-    cursor: pointer;
-  }
-
-  strong {
-    font-weight: 600;
-  }
 `;
 
 const ActionBtns = styled("div")`
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   margin-bottom: 10px;
+`;
 
-  button {
-    background: #2024a4;
-    color: #fff;
-  }
+const InfoButton = styled(Button)`
+  background: #2024a4;
+  color: #fff;
 
-  button:hover {
+  &:hover {
     background: #272cda;
   }
 `;
@@ -161,14 +124,149 @@ const RemoveBtn = styled("div")`
   grid-template-columns: 1fr;
 
   button {
-    background: #a839b9;
-    color: #fff;
+    background: #b50218;
   }
 
   button:hover {
     background: #d0021b;
   }
 `;
+
+class InfoCard extends Component {
+  constructor() {
+    super();
+  }
+
+  state = {
+    openEditBtns: false,
+    confirmRemoval: false
+  };
+
+  onClick = async (action, input) => {
+    const { userStatus } = this.props.info;
+    switch (action) {
+      case "remove":
+        await this.props.removeSeriesMutation({
+          variables: {
+            id: input
+          },
+          refetchQueries: [
+            {
+              query: ListQuery,
+              variables: {
+                userStatus
+              }
+            }
+          ]
+        });
+        break;
+      case "update":
+        await this.props.updateSeriesMutation({
+          variables: input,
+          refetchQueries: [
+            {
+              query: ListQuery,
+              variables: {
+                userStatus
+              }
+            }
+          ]
+        });
+        break;
+      default:
+        break;
+    }
+    // this.props.refetchQuery();
+  };
+
+  render() {
+    const { info } = this.props;
+    return (
+      <Container showEdit={this.state.openEditBtns ? "true" : "false"}>
+        <SeriesInfo onClick={() => this.setState({ confirmRemoval: false })}>
+          <Thumbnail img={info.image_url} />
+          <Info>
+            <Title>{shortenString(info.title, 60)}</Title>
+            <Type>TV</Type>
+            <Synopsis>{shortenString(info.synopsis, 90)}</Synopsis>
+            <Episodes>
+              {info.userStatus === 1 ? "Watching" : "Watched"}
+              <Controls>
+                <Dec
+                  onClick={() =>
+                    this.onClick("update", {
+                      ...info,
+                      watchedEps: info.watchedEps - 1
+                    })
+                  }
+                  userStatus={info.userStatus}
+                >
+                  <FontAwesomeIcon icon={faMinus} />
+                </Dec>
+                <Episode>
+                  {info.watchedEps} {info.episodes ? " /" : ""} {info.episodes}
+                </Episode>{" "}
+                <Inc
+                  onClick={() =>
+                    this.onClick("update", {
+                      ...info,
+                      watchedEps: info.watchedEps + 1
+                    })
+                  }
+                  userStatus={info.userStatus}
+                >
+                  <FontAwesomeIcon icon={faPlus} />
+                </Inc>
+              </Controls>
+            </Episodes>
+          </Info>
+          <EditBtn
+            onClick={() =>
+              this.setState({ openEditBtns: !this.state.openEditBtns })
+            }
+            backgroundColor={this.state.openEditBtns ? "#262767" : "#2024a4"}
+            stayVisible={this.state.openEditBtns ? "true" : "false"}
+          >
+            {this.state.openEditBtns ? "Close" : "Edit"}
+          </EditBtn>
+        </SeriesInfo>
+        <Buttons show={this.state.openEditBtns ? "block" : "none"}>
+          <ActionBtns>
+            {["Watching", "Completed", "Dropped"].map((status, index) => {
+              if (index !== info.userStatus - 1) {
+                return (
+                  <InfoButton
+                    key={index}
+                    onClick={() =>
+                      this.onClick("update", { ...info, userStatus: index + 1 })
+                    }
+                  >
+                    Move to <strong>{status}</strong>
+                  </InfoButton>
+                );
+              }
+            })}
+          </ActionBtns>
+          <RemoveBtn>
+            <InfoButton
+              onClick={() =>
+                !this.state.confirmRemoval
+                  ? this.setState({ confirmRemoval: true })
+                  : this.onClick("remove", info.id)
+              }
+            >
+              <strong>
+                {this.state.confirmRemoval
+                  ? "Are you sure about removing?"
+                  : "Remove"}
+              </strong>
+            </InfoButton>
+          </RemoveBtn>
+        </Buttons>
+      </Container>
+    );
+  }
+}
 
 const RemoveMutation = gql`
   mutation RemoveMutation($id: String!) {
@@ -215,123 +313,6 @@ const UpdateMutation = gql`
     )
   }
 `;
-
-class InfoCard extends Component {
-  constructor() {
-    super();
-  }
-
-  state = {
-    openEditBtns: false,
-    confirmRemoval: false
-  };
-
-  onClick = async (action, input) => {
-    switch (action) {
-      case "remove":
-        await this.props.removeSeriesMutation({
-          variables: {
-            id: input
-          }
-        });
-        break;
-      case "update":
-        await this.props.updateSeriesMutation({
-          variables: input
-        });
-        break;
-      default:
-        break;
-    }
-    this.props.refetchQuery();
-  };
-
-  render() {
-    const { info } = this.props;
-    return (
-      <Container showEdit={this.state.openEditBtns ? "true" : "false"}>
-        <SeriesInfo onClick={() => this.setState({ confirmRemoval: false })}>
-          <Thumbnail img={info.image_url} />
-          <Info>
-            <Title>{info.title}</Title>
-            <Type>TV</Type>
-            <Synopsis>{shortenString(info.synopsis, 100)}</Synopsis>
-            <Episodes userStatus={info.userStatus}>
-              Watching{" "}
-              <Controls>
-                <Dec
-                  onClick={() =>
-                    this.onClick("update", {
-                      ...info,
-                      watchedEps: info.watchedEps - 1
-                    })
-                  }
-                >
-                  <FontAwesomeIcon icon={faMinus} />
-                </Dec>
-                <Episode>
-                  {info.watchedEps} {info.episodes ? " /" : ""} {info.episodes}
-                </Episode>{" "}
-                <Inc
-                  onClick={() =>
-                    this.onClick("update", {
-                      ...info,
-                      watchedEps: info.watchedEps + 1
-                    })
-                  }
-                >
-                  <FontAwesomeIcon icon={faPlus} />
-                </Inc>
-              </Controls>
-            </Episodes>
-          </Info>
-          <EditBtn
-            onClick={() =>
-              this.setState({ openEditBtns: !this.state.openEditBtns })
-            }
-            backgroundColor={this.state.openEditBtns ? "#262767" : "#2024a4"}
-            stayVisible={this.state.openEditBtns ? "true" : "false"}
-          >
-            {this.state.openEditBtns ? "Close" : "Edit"}
-          </EditBtn>
-        </SeriesInfo>
-        <Buttons show={this.state.openEditBtns ? "block" : "none"}>
-          <ActionBtns>
-            {["Watching", "Completed", "Dropped"].map((status, index) => {
-              if (index !== info.userStatus - 1) {
-                return (
-                  <button
-                    key={index}
-                    onClick={() =>
-                      this.onClick("update", { ...info, userStatus: index + 1 })
-                    }
-                  >
-                    Move to <strong>{status}</strong>
-                  </button>
-                );
-              }
-            })}
-          </ActionBtns>
-          <RemoveBtn>
-            <button
-              onClick={() =>
-                !this.state.confirmRemoval
-                  ? this.setState({ confirmRemoval: true })
-                  : this.onClick("remove", info.id)
-              }
-            >
-              <strong>
-                {this.state.confirmRemoval
-                  ? "Are you sure about removing?"
-                  : "Remove"}
-              </strong>
-            </button>
-          </RemoveBtn>
-        </Buttons>
-      </Container>
-    );
-  }
-}
 
 export default compose(
   graphql(RemoveMutation, { name: "removeSeriesMutation" }),

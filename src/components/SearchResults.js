@@ -3,30 +3,11 @@ import styled from "styled-components";
 import SearchCard from "./SearchCard";
 import { graphql } from "react-apollo";
 import gql from "graphql-tag";
+import { Message } from "../styles";
 
 const Container = styled("section")`
   overflow: auto;
   margin-top: 45px;
-`;
-
-const Loading = styled("div")`
-  color: #fff;
-`;
-
-// We use the gql tag to parse our query string into a query document
-const SearchQuery = gql`
-  query SearchQuery($keyword: String!) {
-    search(keyword: $keyword) {
-      id
-      type
-      title
-      image_url
-      subtype
-      episodes
-      youtubeVideoId
-      synopsis
-    }
-  }
 `;
 
 class SearchResults extends Component {
@@ -57,11 +38,11 @@ class SearchResults extends Component {
     const { loading, error, search } = this.props.data;
     const { searching } = this.props;
     if (loading) {
-      return <Loading>Loading...</Loading>;
+      return <Message>Loading...</Message>;
     } else if (error) {
-      return <p>Error!</p>;
+      return <Message>Error!</Message>;
     } else if (!search) {
-      return <p>Not found :(</p>;
+      return <Message>Not found :(</Message>;
     } else {
       return (
         <Container>
@@ -78,6 +59,22 @@ class SearchResults extends Component {
     }
   }
 }
+
+const SearchQuery = gql`
+  query SearchQuery($keyword: String!) {
+    search(keyword: $keyword) {
+      id
+      type
+      title
+      image_url
+      synopsis
+      subtype
+      episodes
+      watchedEps
+      userStatus
+    }
+  }
+`;
 
 export default graphql(SearchQuery, {
   options: ({ keyword }) => ({ variables: { keyword } })

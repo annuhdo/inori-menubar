@@ -13,37 +13,18 @@ const db = require("./models/Series");
 exports.Query = new GraphQLObjectType({
   name: "Query",
   fields: () => ({
-    exist: {
-      type: GraphQLInt,
-      args: {
-        id: {
-          type: GraphQLString
-        }
-      },
-      resolve: async (root, { id }) => {
-        try {
-          const foundDoc = await db.find({ id });
-          return foundDoc.length;
-        } catch (err) {
-          throw new Error(err);
-        }
-      }
-    },
     seriesList: {
       type: new GraphQLList(SeriesOutputType),
-      args: {
-        userStatus: {
-          type: GraphQLInt
-        }
-      },
-      resolve: async (root, { userStatus }) => {
+      args: SeriesInputType,
+      resolve: async (root, args) => {
+        const { userStatus } = args;
         if (userStatus < 1 || userStatus > 3) {
           throw new Error(
             `Invalid status code: ${userStatus}. Valid status code is between 1 and 3.`
           );
         }
         try {
-          return await db.find({ userStatus });
+          return await db.find(args);
         } catch (err) {
           throw new Error(err);
         }

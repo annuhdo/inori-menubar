@@ -35,8 +35,7 @@ if (dev && process.argv.indexOf("--noDevServer") === -1) {
 
 const mb = menubar({
   index: indexPath,
-  height: 550,
-  alwaysOnTop: true
+  height: 550
 });
 
 mb.on("ready", function ready() {

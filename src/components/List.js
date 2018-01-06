@@ -3,31 +3,11 @@ import styled from "styled-components";
 import InfoCard from "./InfoCard";
 import { graphql } from "react-apollo";
 import gql from "graphql-tag";
+import { Message } from "../styles";
 
 const Container = styled("section")`
   overflow: auto;
   margin-top: ${props => (props.showFilters === "true" ? "80px" : "45px")};
-`;
-
-const Loading = styled("div")`
-  color: #fff;
-`;
-
-// We use the gql tag to parse our query string into a query document
-const ListQuery = gql`
-  query ListQuery($userStatus: Int!) {
-    seriesList(userStatus: $userStatus) {
-      id
-      type
-      title
-      image_url
-      synopsis
-      subtype
-      episodes
-      watchedEps
-      userStatus
-    }
-  }
 `;
 
 class List extends Component {
@@ -65,26 +45,36 @@ class List extends Component {
     const { loading, error, seriesList } = this.props.data;
     const { showFilters, userStatus } = this.props;
     if (loading) {
-      return <Loading>Loading...</Loading>;
+      return <Message>Loading...</Message>;
     } else if (error) {
-      return <p>Error!</p>;
+      return <Message>Error!</Message>;
     } else if (!seriesList) {
-      return <p>Not found :(</p>;
+      return <Message>Not found :(</Message>;
     } else {
       return (
         <Container showFilters={showFilters ? "true" : "false"}>
-          {seriesList.map(each => (
-            <InfoCard
-              key={each["id"]}
-              info={each}
-              refetchQuery={this.refetchQuery}
-            />
-          ))}
+          {seriesList.map(each => <InfoCard key={each["id"]} info={each} />)}
         </Container>
       );
     }
   }
 }
+
+export const ListQuery = gql`
+  query ListQuery($userStatus: Int!) {
+    seriesList(userStatus: $userStatus) {
+      id
+      type
+      title
+      image_url
+      synopsis
+      subtype
+      episodes
+      watchedEps
+      userStatus
+    }
+  }
+`;
 
 export default graphql(ListQuery, {
   options: ({ userStatus }) => ({ variables: { userStatus } })

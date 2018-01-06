@@ -1,8 +1,7 @@
+import "babel-polyfill";
 import React from "react";
 import ReactDOM from "react-dom";
-import Main from "./components/Main";
 import App from "./components/App";
-import store from "./store";
 import { ApolloClient } from "apollo-client";
 import { HttpLink } from "apollo-link-http";
 import { InMemoryCache } from "apollo-cache-inmemory";

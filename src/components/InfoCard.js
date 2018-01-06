@@ -3,6 +3,12 @@ import styled, { injectGlobal } from "styled-components";
 import FontAwesomeIcon from "@fortawesome/react-fontawesome";
 import faMinus from "@fortawesome/fontawesome-free-solid/faMinus";
 import faPlus from "@fortawesome/fontawesome-free-solid/faPlus";
+import { compose, graphql } from "react-apollo";
+import gql from "graphql-tag";
+
+const shortenString = (s, limit) => {
+  return `${s.substring(0, limit - 3)}...`;
+};
 
 const Container = styled("div")`
   padding: 10px 20px 10px 20px;
@@ -56,6 +62,7 @@ const Episodes = styled("section")`
   font-weight: 400;
   display: flex;
   align-items: center;
+  display: ${props => (props.userStatus === 1 ? "block" : "none")};
 `;
 
 const Controls = styled("span")`
@@ -113,7 +120,7 @@ const EditBtn = styled("button")`
   }
 `;
 
-const ActionBtns = styled("div")`
+const Buttons = styled("div")`
   display: flex;
   margin: 20px 10px 5px 0;
   display: ${props => props.show};
@@ -129,28 +136,83 @@ const ActionBtns = styled("div")`
     cursor: pointer;
   }
 
-  button:nth-child(1),
-  button:nth-child(2) {
+  strong {
+    font-weight: 600;
+  }
+`;
+
+const ActionBtns = styled("div")`
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  margin-bottom: 10px;
+
+  button {
     background: #2024a4;
     color: #fff;
   }
 
-  button:nth-child(1):hover,
-  button:nth-child(2):hover {
+  button:hover {
     background: #272cda;
   }
+`;
 
-  button:nth-child(3) {
+const RemoveBtn = styled("div")`
+  display: grid;
+  grid-template-columns: 1fr;
+
+  button {
     background: #a839b9;
     color: #fff;
   }
 
-  button:nth-child(3):hover {
+  button:hover {
     background: #d0021b;
   }
+`;
 
-  strong {
-    font-weight: 600;
+const RemoveMutation = gql`
+  mutation RemoveMutation($id: String!) {
+    removeSeries(id: $id)
+  }
+`;
+
+const UpdateMutation = gql`
+  mutation UpdateMutation(
+    $id: String!
+    $type: String
+    $title: String
+    $jp_title: String
+    $url: String
+    $image_url: String
+    $synopsis: String
+    $startDate: String
+    $endDate: String
+    $ageRating: String
+    $subtype: String
+    $status: String
+    $episodes: Int
+    $youtubeVideoId: String
+    $userStatus: Int
+    $watchedEps: Int
+  ) {
+    updateSeries(
+      id: $id
+      type: $type
+      title: $title
+      jp_title: $jp_title
+      url: $url
+      image_url: $image_url
+      synopsis: $synopsis
+      startDate: $startDate
+      endDate: $endDate
+      ageRating: $ageRating
+      subtype: $subtype
+      status: $status
+      episodes: $episodes
+      youtubeVideoId: $youtubeVideoId
+      userStatus: $userStatus
+      watchedEps: $watchedEps
+    )
   }
 `;
 
@@ -160,31 +222,66 @@ class InfoCard extends Component {
   }
 
   state = {
-    openEditBtns: false
+    openEditBtns: false,
+    confirmRemoval: false
+  };
+
+  onClick = async (action, input) => {
+    switch (action) {
+      case "remove":
+        await this.props.removeSeriesMutation({
+          variables: {
+            id: input
+          }
+        });
+        break;
+      case "update":
+        await this.props.updateSeriesMutation({
+          variables: input
+        });
+        break;
+      default:
+        break;
+    }
+    this.props.refetchQuery();
   };
 
   render() {
+    const { info } = this.props;
     return (
       <Container showEdit={this.state.openEditBtns ? "true" : "false"}>
-        <SeriesInfo>
-          <Thumbnail img="https://media.kitsu.io/anime/poster_images/11614/medium.jpg?1496075336" />
+        <SeriesInfo onClick={() => this.setState({ confirmRemoval: false })}>
+          <Thumbnail img={info.image_url} />
           <Info>
-            <Title>Kimi no na wa.</Title>
+            <Title>{info.title}</Title>
             <Type>TV</Type>
-            <Synopsis>
-              From director Makoto Shinkai, the innovative mind behind Voices of
-              a Distant Star and 5 Centimeters Per Second, comes...
-            </Synopsis>
-            <Episodes>
+            <Synopsis>{shortenString(info.synopsis, 100)}</Synopsis>
+            <Episodes userStatus={info.userStatus}>
               Watching{" "}
               <Controls>
-                <Inc>
+                <Dec
+                  onClick={() =>
+                    this.onClick("update", {
+                      ...info,
+                      watchedEps: info.watchedEps - 1
+                    })
+                  }
+                >
                   <FontAwesomeIcon icon={faMinus} />
-                </Inc>
-                <Episode>3/24</Episode>{" "}
-                <Dec>
-                  <FontAwesomeIcon icon={faPlus} />
                 </Dec>
+                <Episode>
+                  {info.watchedEps} {info.episodes ? " /" : ""} {info.episodes}
+                </Episode>{" "}
+                <Inc
+                  onClick={() =>
+                    this.onClick("update", {
+                      ...info,
+                      watchedEps: info.watchedEps + 1
+                    })
+                  }
+                >
+                  <FontAwesomeIcon icon={faPlus} />
+                </Inc>
               </Controls>
             </Episodes>
           </Info>
@@ -198,20 +295,45 @@ class InfoCard extends Component {
             {this.state.openEditBtns ? "Close" : "Edit"}
           </EditBtn>
         </SeriesInfo>
-        <ActionBtns show={this.state.openEditBtns ? "block" : "none"}>
-          <button>
-            Move to <strong>Complete</strong>
-          </button>
-          <button>
-            Move to <strong>Dropped</strong>
-          </button>
-          <button onClick={() => console.log("are you sure")}>
-            <strong>Remove</strong>
-          </button>
-        </ActionBtns>
+        <Buttons show={this.state.openEditBtns ? "block" : "none"}>
+          <ActionBtns>
+            {["Watching", "Completed", "Dropped"].map((status, index) => {
+              if (index !== info.userStatus - 1) {
+                return (
+                  <button
+                    key={index}
+                    onClick={() =>
+                      this.onClick("update", { ...info, userStatus: index + 1 })
+                    }
+                  >
+                    Move to <strong>{status}</strong>
+                  </button>
+                );
+              }
+            })}
+          </ActionBtns>
+          <RemoveBtn>
+            <button
+              onClick={() =>
+                !this.state.confirmRemoval
+                  ? this.setState({ confirmRemoval: true })
+                  : this.onClick("remove", info.id)
+              }
+            >
+              <strong>
+                {this.state.confirmRemoval
+                  ? "Are you sure about removing?"
+                  : "Remove"}
+              </strong>
+            </button>
+          </RemoveBtn>
+        </Buttons>
       </Container>
     );
   }
 }
 
-export default InfoCard;
+export default compose(
+  graphql(RemoveMutation, { name: "removeSeriesMutation" }),
+  graphql(UpdateMutation, { name: "updateSeriesMutation" })
+)(InfoCard);

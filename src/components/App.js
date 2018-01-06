@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import styled, { injectGlobal } from "styled-components";
+import SearchResults from "./SearchResults";
 import List from "./List";
 import SearchBar from "./SearchBar";
 import FontAwesomeIcon from "@fortawesome/react-fontawesome";
@@ -84,6 +85,9 @@ const Filterbar = styled("div")`
   & button:hover {
     border-bottom: 2px solid #454af3;
   }
+  & button:nth-child(${props => props.status}) {
+    border-bottom: 2px solid #454af3;
+  }
 `;
 
 class App extends Component {
@@ -93,9 +97,14 @@ class App extends Component {
     this.state = {
       searchQuery: "",
       searching: false,
-      showFilters: false
+      showFilters: false,
+      currentStatus: 1
     };
   }
+
+  changeStatus = status => {
+    this.setState({ currentStatus: status });
+  };
 
   setSearchVisibility = searching => {
     this.setState({
@@ -132,16 +141,25 @@ class App extends Component {
             <FontAwesomeIcon icon={faFilter} />
           </FilterIcon>
         </Topbar>
-        <Filterbar show={this.state.showFilters ? "true" : "false"}>
-          <button>Active</button>
-          <button>Completed</button>
-          <button>Dropped</button>
+        <Filterbar
+          show={this.state.showFilters ? "true" : "false"}
+          status={this.state.currentStatus}
+        >
+          <button onClick={() => this.changeStatus(1)}>Watching</button>
+          <button onClick={() => this.changeStatus(2)}>Completed</button>
+          <button onClick={() => this.changeStatus(3)}>Dropped</button>
         </Filterbar>
-        <List
-          showFilters={this.state.showFilters}
-          searching={this.state.searching}
-          keyword={this.state.searchQuery}
-        />
+        {this.state.searching ? (
+          <SearchResults
+            searching={this.state.searching}
+            keyword={this.state.searchQuery}
+          />
+        ) : (
+          <List
+            userStatus={this.state.currentStatus}
+            showFilters={this.state.showFilters}
+          />
+        )}
       </Container>
     );
   }

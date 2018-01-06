@@ -1,8 +1,7 @@
 import React, { Component } from "react";
 import styled, { injectGlobal } from "styled-components";
-import FontAwesomeIcon from "@fortawesome/react-fontawesome";
-import faMinus from "@fortawesome/fontawesome-free-solid/faMinus";
-import faPlus from "@fortawesome/fontawesome-free-solid/faPlus";
+import { graphql } from "react-apollo";
+import gql from "graphql-tag";
 
 const Container = styled("div")`
   padding: 10px 20px 10px 20px;
@@ -72,6 +71,47 @@ const Episode = styled("span")`
   margin-left: 20px;
 `;
 
+// We use the gql tag to parse our query string into a query document
+const AddMutation = gql`
+  mutation AddMutation(
+    $id: String!
+    $type: String
+    $title: String
+    $jp_title: String
+    $url: String
+    $image_url: String
+    $synopsis: String
+    $startDate: String
+    $endDate: String
+    $ageRating: String
+    $subtype: String
+    $status: String
+    $episodes: Int
+    $youtubeVideoId: String
+    $userStatus: Int
+    $watchedEps: Int
+  ) {
+    addSeries(
+      id: $id
+      type: $type
+      title: $title
+      jp_title: $jp_title
+      url: $url
+      image_url: $image_url
+      synopsis: $synopsis
+      startDate: $startDate
+      endDate: $endDate
+      ageRating: $ageRating
+      subtype: $subtype
+      status: $status
+      episodes: $episodes
+      youtubeVideoId: $youtubeVideoId
+      userStatus: $userStatus
+      watchedEps: $watchedEps
+    )
+  }
+`;
+
 class SearchCard extends Component {
   constructor() {
     super();
@@ -79,6 +119,21 @@ class SearchCard extends Component {
 
   state = {
     openEditBtns: false
+  };
+
+  onClick = async (action, input) => {
+    if (!this.props.watching) {
+      switch (action) {
+        case "add":
+          await this.props.addSeriesMutation({
+            variables: input
+          });
+          break;
+        default:
+          break;
+      }
+      // this.props.refetchQuery();
+    }
   };
 
   render() {
@@ -93,7 +148,12 @@ class SearchCard extends Component {
               TV
               <Episode>{info.episodes} Episodes</Episode>
             </Type>
-            <ActionBtn status={this.props.status}>
+            <ActionBtn
+              status={this.props.status}
+              onClick={() =>
+                this.onClick("add", { ...info, userStatus: 1, watchedEps: 0 })
+              }
+            >
               {this.props.status === "watching"
                 ? "Watching"
                 : "Add to Watching"}
@@ -105,4 +165,4 @@ class SearchCard extends Component {
   }
 }
 
-export default SearchCard;
+export default graphql(AddMutation, { name: "addSeriesMutation" })(SearchCard);

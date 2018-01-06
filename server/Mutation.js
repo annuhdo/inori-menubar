@@ -16,44 +16,67 @@ exports.Mutation = new GraphQLObjectType({
     addSeries: {
       type: GraphQLString,
       args: SeriesInputType,
-      resolve: async (root, series, context) => {
+      resolve: async (root, series) => {
         try {
-          await db.insert(series);
-
-          // const foundDoc = await db.findOne({ id: "886" });
-          // console.log(foundDoc);
-          return foundDoc.title;
+          const alreadyExist = await db.findOne({ id: series.id });
+          let insertion = null;
+          if (alreadyExist) {
+            // Update the doc
+            insertion = await db.update(
+              { id: series.id },
+              { $set: series },
+              {}
+            );
+          } else {
+            insertion = await db.insert(series);
+          }
+          return series.id;
         } catch (err) {
-          console.error(err);
+          throw new Error(err);
         }
       }
     },
-    changeStatus: {
+    removeSeries: {
       type: GraphQLString,
       args: {
-        _id: {
-          type: new GraphQLNonNull(GraphQLString)
-        },
-        newStatus: {
+        id: {
           type: new GraphQLNonNull(GraphQLString)
         }
       },
-      resolve: async (root, { _id, newStatus }) => {
-        if (
-          newStatus != "watching" ||
-          newStatus != "completed" ||
-          newStatus != dropped
-        ) {
-          throw new Error();
-        }
+      resolve: async (root, { id }) => {
         try {
-          await db.update({ _id }, { $set: { userStatus: newStatus } });
+          const removedDoc = await db.remove({ id }, {});
+          return removedDoc;
         } catch (err) {
-          console.error(err);
+          throw new Error(err);
+        }
+      }
+    },
+    updateSeries: {
+      type: GraphQLString,
+      args: SeriesInputType,
+      resolve: async (root, args) => {
+        const alreadyExist = await db.findOne({ id: args.id });
+
+        if (!alreadyExist) {
+          throw new Error("Unable to find the series to update.");
+        }
+
+        if (
+          args.watchedEps < alreadyExist.episodes ||
+          args.watchedEps > alreadyExist.episodes
+        ) {
+          args.watchedEps = Math.max(args.watchedEps, 0);
+          args.watchedEps = Math.min(args.watchedEps, alreadyExist.episodes);
+        }
+
+        try {
+          const update = await db.update({ id: args.id }, { $set: args }, {});
+          return update;
+        } catch (err) {
+          throw new Error(err);
         }
       }
     }
-
-    // TODO: test this
   })
 });

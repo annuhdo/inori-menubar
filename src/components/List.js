@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import styled from "styled-components";
 import InfoCard from "./InfoCard";
-import SearchCard from "./SearchCard";
 import { graphql } from "react-apollo";
 import gql from "graphql-tag";
 
@@ -15,16 +14,18 @@ const Loading = styled("div")`
 `;
 
 // We use the gql tag to parse our query string into a query document
-const SearchQuery = gql`
-  query SearchQuery($keyword: String!) {
-    search(keyword: $keyword) {
+const ListQuery = gql`
+  query ListQuery($userStatus: Int!) {
+    seriesList(userStatus: $userStatus) {
       id
       type
       title
       image_url
+      synopsis
       subtype
       episodes
-      youtubeVideoId
+      watchedEps
+      userStatus
     }
   }
 `;
@@ -35,40 +36,56 @@ class List extends Component {
   }
 
   state = {
-    keyword: ""
+    userStatus: 1
   };
 
-  componentWillMount() {
-    // Refetch with new parameter if user types another search query
-    const { refetch } = this.props.data;
-    if (this.props.keyword != this.state.keyword) {
-      this.setState({ keyword: this.props.keyword });
-      refetch(SearchQuery, {
-        options: ({ keyword }) => ({ variables: { keyword } })
-      });
-    }
+  refetchQuery = (refetch = this.props.data.refetch) => {
+    refetch(ListQuery, {
+      options: ({ userStatus }) => ({ variables: { userStatus } })
+    });
+  };
+
+  newStatus = userStatus => {
+    this.setState({
+      userStatus
+    });
+  };
+
+  componentWillReceiveProps(nextProps) {
+    // if (this.state.userStatus !== nextProps.userStatus) {
+    // Refetch with new parameter if user changes selection
+    const { refetch } = nextProps.data;
+    // if (nextProps.userStatus !== this.state.userStatus) {
+    this.newStatus(nextProps.userStatus);
+    this.refetchQuery(refetch);
+    // }
   }
 
   render() {
-    const { loading, error, search } = this.props.data;
+    const { loading, error, seriesList } = this.props.data;
+    const { showFilters, userStatus } = this.props;
     if (loading) {
       return <Loading>Loading...</Loading>;
     } else if (error) {
       return <p>Error!</p>;
-    } else if (!search) {
+    } else if (!seriesList) {
       return <p>Not found :(</p>;
     } else {
       return (
-        <Container showFilters={this.props.showFilters ? "true" : "false"}>
-          {this.props.searching
-            ? search.map(each => <SearchCard key={each["id"]} info={each} />)
-            : [<InfoCard key="1" />, <InfoCard key="2" />]}
+        <Container showFilters={showFilters ? "true" : "false"}>
+          {seriesList.map(each => (
+            <InfoCard
+              key={each["id"]}
+              info={each}
+              refetchQuery={this.refetchQuery}
+            />
+          ))}
         </Container>
       );
     }
   }
 }
 
-export default graphql(SearchQuery, {
-  options: ({ keyword }) => ({ variables: { keyword } })
+export default graphql(ListQuery, {
+  options: ({ userStatus }) => ({ variables: { userStatus } })
 })(List);

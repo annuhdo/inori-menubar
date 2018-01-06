@@ -39,7 +39,7 @@ exports.SeriesInputType = {
   ageRating: {
     type: GraphQLString
   },
-  subType: {
+  subtype: {
     type: GraphQLString
   },
   status: {
@@ -52,7 +52,7 @@ exports.SeriesInputType = {
     type: GraphQLString
   },
   userStatus: {
-    type: new GraphQLNonNull(GraphQLString)
+    type: GraphQLInt
   },
   watchedEps: {
     type: GraphQLInt
@@ -141,6 +141,14 @@ exports.SeriesOutputType = new GraphQLObjectType({
       resolve: root =>
         (root.attributes && root.attributes.youtubeVideoId) ||
         root.youtubeVideoId
+    },
+    userStatus: {
+      type: GraphQLInt,
+      resolve: root => root.userStatus
+    },
+    watchedEps: {
+      type: GraphQLInt,
+      resolve: root => root.watchedEps
     }
   })
 });

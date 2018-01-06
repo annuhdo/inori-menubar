@@ -13,25 +13,43 @@ const db = require("./models/Series");
 exports.Query = new GraphQLObjectType({
   name: "Query",
   fields: () => ({
-    getWatchingList: {
-      type: new GraphQLList(SeriesOutputType),
-      resolve: async () => {
-        return await db.find({ userStatus: "watching" });
+    exist: {
+      type: GraphQLInt,
+      args: {
+        id: {
+          type: GraphQLString
+        }
+      },
+      resolve: async (root, { id }) => {
+        try {
+          const foundDoc = await db.find({ id });
+          return foundDoc.length;
+        } catch (err) {
+          throw new Error(err);
+        }
       }
     },
-    getCompletedList: {
+    seriesList: {
       type: new GraphQLList(SeriesOutputType),
-      resolve: async () => {
-        return await db.find({ userStatus: "completed" });
+      args: {
+        userStatus: {
+          type: GraphQLInt
+        }
+      },
+      resolve: async (root, { userStatus }) => {
+        if (userStatus < 1 || userStatus > 3) {
+          throw new Error(
+            `Invalid status code: ${userStatus}. Valid status code is between 1 and 3.`
+          );
+        }
+        try {
+          return await db.find({ userStatus });
+        } catch (err) {
+          throw new Error(err);
+        }
       }
     },
-    getDroppedList: {
-      type: new GraphQLList(SeriesOutputType),
-      resolve: async () => {
-        return await db.find({ userStatus: "dropped" });
-      }
-    },
-    getSavedData: {
+    savedData: {
       type: new GraphQLList(SeriesOutputType),
       args: {
         type: {
